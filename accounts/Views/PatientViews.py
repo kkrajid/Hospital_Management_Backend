@@ -105,17 +105,17 @@ def login_view(request):
         ).first()
 
         if user is None:
-            return Response({"message": "User not found"})
-        
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
         if user.is_blocked:
-            return Response({"message": "User is blocked"})
-        
+            return Response({"message": "User is blocked"}, status=status.HTTP_403_FORBIDDEN)
+
         if not user.otp_verified:
             serializer = UserSerializer(user)
-            return Response({"message":"otp not verified","data":serializer.data}, status=status.HTTP_200_OK)
-        
+            return Response({"message": "OTP not verified", "data": serializer.data}, status=status.HTTP_200_OK)
+
         if not user.check_password(password):
-            return Response({"message": "Incorrect Password"})
+            return Response({"message": "Incorrect Password"}, status=status.HTTP_401_UNAUTHORIZED)
 
         payload = {
             'id': user.id,
