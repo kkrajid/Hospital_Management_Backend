@@ -101,6 +101,7 @@ def login_view(request):
         user = User.objects.filter(
             email=email,
             is_superuser=False,
+            otp_verified=True,
             role = 'Patient'
         ).first()
 

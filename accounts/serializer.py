@@ -1,4 +1,4 @@
-from .models import User
+from .models import User,DoctorModel
 from rest_framework import serializers
 import re
 
@@ -37,3 +37,12 @@ class UserSerializer(serializers.ModelSerializer):
 
         instance.save()
         return instance
+
+
+class DoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DoctorModel
+        fields = ['speciality', 'license_number']
+
+    def create(self, validated_data):
+        return DoctorModel.objects.create(**validated_data)

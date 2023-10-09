@@ -11,6 +11,9 @@ urlpatterns = [
 
     #-------------------------Admin side----------------------------------------#
     path('admin/login',AdminView.admin_login_view,name='admin_login'),
+    path('admin/add_doctor',AdminView.add_doctor,name='add_doctor'),
+    path('admin/all_doctors',AdminView.all_doctors,name='all_doctors'),
+    path('admin/all_patients',AdminView.all_patients,name='all_patients'),
     ############################################################################
 
     #---------------------------ICU side----------------------------------------#
