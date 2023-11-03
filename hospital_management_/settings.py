@@ -14,12 +14,17 @@ SECRET_KEY = 'django-insecure-g%&ji+1l!+t+^^o%67+hse-o+ityhmx9l7(m@#tzn*=0h$0(t6
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# Add WebSocket protocol to the ALLOWED_HOSTS
+ALLOWED_HOSTS = ['*']
+
+# Configure routing
+ASGI_APPLICATION = 'chat_project.routing.application'
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -29,7 +34,32 @@ INSTALLED_APPS = [
     'accounts',
     'rest_framework',
     'corsheaders',
+    'chat',
+    'channels',
+  
+    
+    
+    
+
 ]
+
+
+# CHANNEL_LAYERS = {
+#     'default': {
+#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
+#         'CONFIG': {
+#             "hosts": [('127.0.0.1', 6379)],
+#         },
+#     },
+# }
+
+
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -61,8 +91,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'hospital_management_.wsgi.application'
-
+# WSGI_APPLICATION = 'hospital_management_.wsgi.application'
+ASGI_APPLICATION = 'hospital_management_.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
@@ -117,6 +147,14 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOW_ALL_ORIGINS = True
 
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE",
+    "OPTIONS",
+]
+
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
@@ -131,5 +169,12 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'greenstorefun@gmail.com'
 EMAIL_HOST_PASSWORD = 'hrolvjiwunkxulwx' 
 
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10, 
+}
+
 
 AUTH_USER_MODEL = 'accounts.User'
+
+STRIPE_SECRET_KEY = 'sk_test_51O7aFpSFII5KNwJppj5EjbwNFL8nNXNSQOgqirySi4zJQSBwCh2EzjtpKP9jWJ1kcLe21hCFgVEovzSrr5ftxTI300j8WOiw4R'

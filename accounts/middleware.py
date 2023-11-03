@@ -20,7 +20,8 @@ class CustomMiddleware:
             user = None
         
         request.META['user'] = user
-        print(user)
+        # print(request)
+        # print(user)
         response = self.get_response(request)
         return response
 

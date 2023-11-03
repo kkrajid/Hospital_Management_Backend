@@ -1,11 +1,11 @@
-from .models import User,DoctorModel
+from .models import *
 from rest_framework import serializers
 import re
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'full_name', 'email', 'password', 'role', 'phone']
+        fields = ['id', 'full_name', 'email', 'password', 'role', 'phone','date_of_birth',"gender"]
         extra_kwargs = {
             'password': {'write_only': True},
             'role': {'default': 'Patient'},
@@ -39,10 +39,113 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class DoctorSerializer(serializers.ModelSerializer):
+
+
+
+class AddressSerializer(serializers.ModelSerializer):
     class Meta:
-        model = DoctorModel
-        fields = ['speciality', 'license_number']
+        model = Address
+        fields = '__all__'
+
+class DoctorProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(required=False)
+    address = AddressSerializer(required=False)
+
+    class Meta:
+        model = DoctorProfile
+        fields = '__all__'
 
     def create(self, validated_data):
-        return DoctorModel.objects.create(**validated_data)
+        user_data = validated_data.pop('user')
+        address_data = validated_data.pop('address')
+
+        user, created = User.objects.get_or_create(email=user_data['email'], defaults=user_data)
+        if 'password' in user_data:
+            user.set_password(user_data['password'])
+            user.save()
+
+        address, created = Address.objects.get_or_create(**address_data)
+
+        doctor_profile, created = DoctorProfile.objects.get_or_create(user=user, address=address, defaults=validated_data)
+        return doctor_profile
+    
+    def update(self, instance, validated_data):
+        user_data = validated_data.pop('user', {})  
+        address_data = validated_data.pop('address')
+
+        
+        for attr, value in address_data.items():
+            setattr(instance.address, attr, value)
+        instance.address.save()
+
+        
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+       
+        if user_data:
+            user = instance.user
+            for attr, value in user_data.items():
+                if attr != 'email':  
+                    setattr(user, attr, value)
+            user.save()
+
+        return instance
+
+class PatientProfileSerializer(serializers.ModelSerializer):
+    address = AddressSerializer(required=False)
+
+    class Meta:
+        model = PatientProfile
+        fields = '__all__'
+    def create(self, validated_data):
+        # print(validated_data)
+        address_data = validated_data.pop('address')  # Extract address data
+        address, _ = Address.objects.get_or_create(**address_data)  # Get or create the Address
+        patient_profile = PatientProfile.objects.create(address=address, **validated_data)
+        return patient_profile
+    
+    def update(self, instance, validated_data):
+        address_data = validated_data.pop('address', None)
+        if address_data:
+            address, _ = Address.objects.get_or_create(**address_data)
+            instance.address = address
+
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance
+
+class TimeSlotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TimeSlot
+        fields = '__all__'
+
+
+class AppointmentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Appointment
+        fields = '__all__'
+
+class GetAppointmentSerializer(serializers.ModelSerializer):
+    time_slot = TimeSlotSerializer(read_only=True)
+    patient = UserSerializer(read_only=True)
+    #doctor = UserSerializer(read_only=True)
+    doctor_profile = DoctorProfileSerializer(source='doctor.doctorprofile', read_only=True)
+
+    class Meta:
+        model = Appointment
+        fields = '__all__'
+
+
+class Get_for_doctor_AppointmentSerializer(serializers.ModelSerializer):
+    time_slot = TimeSlotSerializer(read_only=True)
+    patient = UserSerializer(read_only=True)
+    # doctor = UserSerializer(read_only=True)
+    Patient_profile = PatientProfileSerializer(source='patient.patientprofile', read_only=True)
+
+    class Meta:
+        model = Appointment
+        fields = '__all__'
