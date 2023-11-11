@@ -123,8 +123,31 @@ class Appointment(models.Model):
     def __str__(self):
         return f"Appointment with {self.doctor} on {self.appointment_datetime}"
 
+class Prescription(models.Model):
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prescriptions_written')
+    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prescriptions_received')
+    
+    dosage = models.CharField(max_length=50, blank=True, null=True)
+    frequency = models.CharField(max_length=50, blank=True, null=True)
+    medicine = models.CharField(max_length=255, blank=True, null=True)
+    day = models.CharField(max_length=20, blank=True, null=True)
+    
+    STATUS_CONTINUED = 'continued'
+    STATUS_CANCELLED = 'cancelled'
+    
+    STATUS_CHOICES = [
+        (STATUS_CONTINUED, 'Continued'),
+        (STATUS_CANCELLED, 'Cancelled'),
+    ]
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_CONTINUED)
 
+    prescription_text = models.TextField()
+    date_created = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Prescription for {self.patient} by Dr. {self.doctor}"
 
 
 # class Address(models.Model):

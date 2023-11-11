@@ -8,6 +8,7 @@ import datetime
 from ..serializer import *
 from datetime import datetime, timedelta
 import json
+from django.shortcuts import get_object_or_404
 
 @api_view(['POST'])
 def doctor_login_view(request):
@@ -197,7 +198,7 @@ def doctor_profile_detail(request):
         serializer = DoctorProfileSerializer(doctor_profile, data=data_s,partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response({"message": "Doctor profile updated successfully"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == 'DELETE':
@@ -262,7 +263,7 @@ def create_time_slots(request):
         print(end_time)
         print(date)
         print('------------------------------')
-        step = timedelta(minutes=15)
+        step = timedelta(minutes=30)
         start_time = datetime.strptime(start_time, '%H:%M').time()
         end_time = datetime.strptime(end_time, '%H:%M').time()
 
@@ -329,9 +330,8 @@ def all_time_slots(request):
     return Response(time_slot_serializer.data)
 
 
-
 @api_view(['POST'])
-def delete_time_slots(request):
+def doctor_delete_time_slots(request):
     if 'user' not in request.META:
         return Response({"message": "Bad Request"}, status=status.HTTP_404_NOT_FOUND)
 
@@ -341,23 +341,18 @@ def delete_time_slots(request):
         return Response({"message": "Your Account is Blocked"}, status=status.HTTP_403_FORBIDDEN)
 
     if doctor is not None:
-        date = request.data.get('date')
-        time_slot = request.data.get('time_slot')
-        date_obj = datetime.strptime(date, '%Y-%m-%d').date()
-        current_date = datetime.now().date()
-        if date_obj == current_date:
-            slot = TimeSlot.objects.filter(doctor=doctor, date=date, start_time=time_slot).first()
+        time_slots = request.data.get('time_slot')
+        for time_slot_id in time_slots:
+            slot = TimeSlot.objects.filter(id=time_slot_id).first()
 
             if slot is not None:
                 slot.delete()
-                return Response({"message": "Deleted successfully"}, status=status.HTTP_201_CREATED)
             else:
                 return Response({"message": "Time slot not found"}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            return Response({"message": "Cannot delete time slots for a different date"}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"message": "Deleted successfully"}, status=status.HTTP_201_CREATED)
     else:
         return Response({"message": "Bad Request"}, status=status.HTTP_404_NOT_FOUND)
-
 
 
 @api_view(['POST'])
@@ -442,3 +437,29 @@ def get_all_appointment_of_doctor(request):
             return Response({'message': "Appointment not found or does not belong to this doctor"}, status=status.HTTP_404_NOT_FOUND)
     appointment_serializer = Get_for_doctor_AppointmentSerializer(all_appointments_, many=True)
     return Response(appointment_serializer.data, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def create_prescription(request):
+    serializer = PrescriptionCreateSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['GET'])
+def prescription_detail(request):
+    user = request.user
+    prescriptions = Prescription.objects.filter(patient=user)
+    serializer = PrescriptionCreateSerializer(prescriptions, many=True)
+    return Response(serializer.data)
+
+
+
+@api_view(['GET'])
+def doctor_get_appointment_details(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    serializer = patient_side_get_pateint_detialis_AppointmentSerializer(appointment)
+    return Response(serializer.data)

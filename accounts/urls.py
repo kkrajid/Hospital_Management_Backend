@@ -15,6 +15,8 @@ urlpatterns = [
     path('patient/doctor/time-slots/<int:pk>/<str:date>/', PatientViews.doctor_time_slot_in_patientside, name='doctor_time_slot_in_patientside'),
     path('patient/make_appointments',PatientViews.make_appointments,name='make_appointments' ),
     path('patient/get_all_appointment',PatientViews.get_all_appointment,name='get_all_appointment' ),
+    path('patient/appointments/<int:appointment_id>/', PatientViews.appointment_details, name='appointment-details'),
+    path('patient/prescriptions/appointment/<int:appointment_id>/', PatientViews.prescriptions_for_appointment, name='prescriptions-for-appointment'),
    
     ############################################################################
 
@@ -34,10 +36,15 @@ urlpatterns = [
     path('doctor/login',DoctorView.doctor_login_view,name='doctor_login'),
     path('doctor/create_time_slots',DoctorView.create_time_slots,name='create_time_slots'),
     path('doctor/all_time_slots',DoctorView.all_time_slots,name='all_time_slots'),
+    path('doctor/doctor_delete_time_slots',DoctorView.doctor_delete_time_slots,name='doctor_delete_time_slots'),
+
     path('doctor-profiles/', DoctorView.get_doctor_profiles, name='doctor-profile-list'),
     path('doctor_profile_detail', DoctorView.doctor_profile_detail, name='doctor_profile_detail'),
     path('doctor/get_all_appointment_of_doctor', DoctorView.get_all_appointment_of_doctor, name='get_all_appointment_of_doctor'),
     path('doctor/dashboard',DoctorView.doctor_dashboard,name='doctor_dashboard'),
+    path('doctor/create_prescription/', DoctorView.create_prescription, name='create_prescription'),
+    path('doctor/appointments/<int:appointment_id>/', DoctorView.doctor_get_appointment_details, name='doctor_get_appointment_details'),
+    
     
     
     # path('doctor/profile',DoctorView.doctor_profile_view,name='doctor_profile_view'),

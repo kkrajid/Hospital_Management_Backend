@@ -11,6 +11,7 @@ import string
 from django.core.mail import send_mail
 from django.core.cache import cache
 from rest_framework.pagination import PageNumberPagination
+from django.shortcuts import get_object_or_404
 #----------------------------------###registration###-------------------------------------------------#
 #-----------------------------------------------------------------------------------------------------#
 def generate_otp(length=6):
@@ -415,8 +416,18 @@ def get_all_appointment(request):
     appointment_serializer = GetAppointmentSerializer(all_appointments_of_patient, many=True)
     return Response(appointment_serializer.data, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+def appointment_details(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    serializer = patient_side_get_pateint_detialis_AppointmentSerializer(appointment)
+    return Response(serializer.data)
 
 
+@api_view(['GET'])
+def prescriptions_for_appointment(request, appointment_id):
+    prescriptions = Prescription.objects.filter(appointment__id=appointment_id)
+    serializer = PrescriptionCreateSerializer(prescriptions, many=True)
+    return Response({'prescriptions': serializer.data})
 
 # @api_view(['GET'])
 # def doctor_time_slot_in_patientside(request, pk, date):
