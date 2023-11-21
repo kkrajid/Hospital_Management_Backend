@@ -439,6 +439,51 @@ def get_all_appointment_of_doctor(request):
     return Response(appointment_serializer.data, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+def all_icu_patients(request):
+    if 'user' not in request.META:
+        return Response({"message": "Bad Request"}, status=status.HTTP_400_BAD_REQUEST)
+
+    user_id = request.META['user']
+    user = User.objects.filter(id=user_id, role='Doctor').first()
+
+    if user is None:
+        return Response({"message": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if user.is_blocked:
+        return Response({"message": "Your Account is Blocked"}, status=status.HTTP_403_FORBIDDEN)
+    doctor_info = User.objects.filter(id=user.id).first()
+    all_appointments_ = Appointment.objects.filter(doctor=doctor_info)
+    appointment_serializer = Get_for_doctor_AppointmentSerializer(all_appointments_, many=True)
+    return Response(appointment_serializer.data)
+
+
+@api_view(['POST'])
+def add_icu_patient(request):
+    if 'user' not in request.META:
+        return Response({"message": "Bad Request"}, status=status.HTTP_400_BAD_REQUEST)
+
+    user_id = request.META['user']
+    user = User.objects.filter(id=user_id, role='Doctor').first()
+
+    if user is None:
+        return Response({"message": "Doctor not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if user.is_blocked:
+        return Response({"message": "Your Account is Blocked"}, status=status.HTTP_403_FORBIDDEN)
+    admintDate = request.data.get('admintDate')
+    appointmentId = request.data.get('appointmentId')
+    print(admintDate,appointmentId,"11111111111111111111111111111111111111111111111111111")
+    appointment_ = Appointment.objects.filter(id=appointmentId).first()
+    appointment_.icu_selected = True
+    appointment_.save()
+    serializer = Get_for_doctor_AppointmentSerializer(appointment_)
+    return Response(serializer.data)
+
+
+
+
+
 @api_view(['POST'])
 def create_prescription(request):
     serializer = PrescriptionCreateSerializer(data=request.data)

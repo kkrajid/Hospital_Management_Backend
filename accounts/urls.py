@@ -44,6 +44,11 @@ urlpatterns = [
     path('doctor/dashboard',DoctorView.doctor_dashboard,name='doctor_dashboard'),
     path('doctor/create_prescription/', DoctorView.create_prescription, name='create_prescription'),
     path('doctor/appointments/<int:appointment_id>/', DoctorView.doctor_get_appointment_details, name='doctor_get_appointment_details'),
+    path('doctor/all_icu_patients/', DoctorView.all_icu_patients, name='all_icu_patients'),
+    path('doctor/add_icu_patient/', DoctorView.add_icu_patient, name='add_icu_patient'),
+
+    
+    
     
     
     

@@ -5,7 +5,9 @@ from ..models import *
 from rest_framework.exceptions import AuthenticationFailed
 import jwt
 import datetime
+from datetime import datetime, timedelta
 from ..serializer import *
+# from datetime import datetime, timedelta
 
 
 
@@ -29,8 +31,8 @@ def admin_login_view(request):
 
         payload = {
             'id': user.id,
-            'exp': datetime.datetime.utcnow() + datetime.timedelta(minutes=60),
-            'iat': datetime.datetime.utcnow(),
+            'exp': datetime.utcnow() + timedelta(minutes=60),
+            'iat': datetime.utcnow(),
             'role':"admin"
         }
 

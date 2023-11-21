@@ -2,6 +2,7 @@ from django.db import models
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin,AbstractUser
 
+from datetime import datetime
 
 from django.db import models
 from django.db.models.signals import post_save
@@ -80,6 +81,7 @@ class DoctorProfile(UserProfile):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, blank=True, null=True)
+    service_charge = models.CharField(max_length=100)
 
 class PatientProfile(UserProfile):
     insurance_info = models.TextField(blank=True, null=True)
@@ -110,7 +112,16 @@ APPOINTMENT_STATUS = (
     ('Pending', 'Pending'),
     ('Cancelled', 'Cancelled'),
     ('Accepted', 'Accepted'),
+    ('Completed', 'Completed'),
 )
+
+ICU_STATUS = (
+    ('ICU_Admitted', 'ICU Admitted'),
+    ('ICU_Critical', 'ICU Critical'),
+    ('ICU_Recovered', 'ICU Recovered'),
+    ('ICU_Not_Needed', 'ICU Not Needed'),
+)
+
 class Appointment(models.Model):
     time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
     patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments_as_patient')
@@ -119,35 +130,36 @@ class Appointment(models.Model):
     is_confirmed = models.BooleanField(default=False)
     is_cancelled = models.BooleanField(default=False)
     appointment_status = models.CharField(max_length=20, choices=APPOINTMENT_STATUS, default='Pending')
+    icu_selected = models.BooleanField(default=False)
+    icu_status = models.CharField(max_length=20, choices=ICU_STATUS, default='ICU Not Needed')
+    icu_admitted_date = models.DateTimeField(default=datetime.now, null=True, blank=True)
+    icu_discharged_date = models.DateTimeField(null=True, blank=True)
+
 
     def __str__(self):
         return f"Appointment with {self.doctor} on {self.appointment_datetime}"
 
-class Prescription(models.Model):
-    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prescriptions_written')
-    patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='prescriptions_received')
-    
-    dosage = models.CharField(max_length=50, blank=True, null=True)
-    frequency = models.CharField(max_length=50, blank=True, null=True)
-    medicine = models.CharField(max_length=255, blank=True, null=True)
-    day = models.CharField(max_length=20, blank=True, null=True)
-    
-    STATUS_CONTINUED = 'continued'
-    STATUS_CANCELLED = 'cancelled'
-    
-    STATUS_CHOICES = [
-        (STATUS_CONTINUED, 'Continued'),
-        (STATUS_CANCELLED, 'Cancelled'),
-    ]
-    
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_CONTINUED)
 
-    prescription_text = models.TextField()
-    date_created = models.DateTimeField(auto_now_add=True)
+class Prescription(models.Model):
+    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
+    medications = models.TextField()
+    dosage = models.CharField(max_length=50)
+    duration = models.CharField(max_length=50)
+    quantity = models.PositiveIntegerField()
+    instructions = models.TextField()
+    issued_date = models.DateField(auto_now_add=True)
+  
 
     def __str__(self):
-        return f"Prescription for {self.patient} by Dr. {self.doctor}"
+        return f"Prescription for {self.appointment.patient} by {self.appointment.doctor} on {self.issued_date}"
+
+
+class Instruction(models.Model):
+    prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE)
+    instruction_text = models.TextField()
+
+    def __str__(self):
+        return f"Instruction for Prescription {self.prescription.id}"
 
 
 # class Address(models.Model):
