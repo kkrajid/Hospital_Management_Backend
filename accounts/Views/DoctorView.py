@@ -482,26 +482,32 @@ def add_icu_patient(request):
 
 
 
-
-
 @api_view(['POST'])
 def create_prescription(request):
-    serializer = PrescriptionCreateSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    if request.method == 'POST':
+        serializer = PrescriptionSerializer(data=request.data)
+        if serializer.is_valid():
+            appointment_instance = serializer.validated_data.get('appointment')
+            appointment_id = appointment_instance.id if appointment_instance else None
+            
+            if appointment_id is None:
+                return Response({'error': 'Invalid appointment.'}, status=status.HTTP_400_BAD_REQUEST)
 
+            serializer.save(appointment_id=appointment_id)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
-def prescription_detail(request):
-    user = request.user
-    prescriptions = Prescription.objects.filter(patient=user)
-    serializer = PrescriptionCreateSerializer(prescriptions, many=True)
-    return Response(serializer.data)
-
-
+def get_prescriptions(request, appointment_id):
+    if request.method == 'GET':
+        try:
+            # Assuming 'appointment_id' is an integer, adjust accordingly if it's a different type
+            prescriptions = Prescription.objects.filter(appointment_id=appointment_id)
+            serializer = PrescriptionSerializer(prescriptions, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Prescription.DoesNotExist:
+            return Response({'error': 'Prescriptions not found for the given appointment ID.'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
 def doctor_get_appointment_details(request, appointment_id):

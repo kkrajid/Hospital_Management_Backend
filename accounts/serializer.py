@@ -151,7 +151,7 @@ class Get_for_doctor_AppointmentSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class PrescriptionCreateSerializer(serializers.ModelSerializer):
+class PrescriptionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Prescription
         fields = '__all__'
@@ -160,7 +160,7 @@ class PrescriptionCreateSerializer(serializers.ModelSerializer):
 
 
 class patient_side_get_pateint_detialis_AppointmentSerializer(serializers.ModelSerializer):
-    prescriptions = PrescriptionCreateSerializer(many=True, read_only=True)
+    prescriptions = PrescriptionSerializer(many=True, read_only=True)
     doctor_profile = DoctorProfileSerializer(source='doctor.doctorprofile', read_only=True)
     patient = UserSerializer()
     time_slot = TimeSlotSerializer(read_only=True)
