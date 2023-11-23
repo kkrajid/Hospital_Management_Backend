@@ -47,6 +47,7 @@ urlpatterns = [
     path('doctor/appointments/<int:appointment_id>/', DoctorView.doctor_get_appointment_details, name='doctor_get_appointment_details'),
     path('doctor/all_icu_patients/', DoctorView.all_icu_patients, name='all_icu_patients'),
     path('doctor/add_icu_patient/', DoctorView.add_icu_patient, name='add_icu_patient'),
+    path('doctor/appointments/<int:appointment_id>/update-status/', DoctorView.doctor_manage_appointment_status, name='update_appointment_status'),
 
     
     

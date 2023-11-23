@@ -168,3 +168,14 @@ class patient_side_get_pateint_detialis_AppointmentSerializer(serializers.ModelS
         model = Appointment
         fields = ['id', 'time_slot', 'patient', 'doctor_profile', 'appointment_datetime',
                   'is_confirmed', 'is_cancelled', 'appointment_status', 'prescriptions']
+        
+
+class doctor_side_get_pateint_detialis_AppointmentSerializer(serializers.ModelSerializer):
+    prescriptions = PrescriptionSerializer(many=True, read_only=True)
+    Patient_profile = PatientProfileSerializer(source='patient.patientprofile', read_only=True)
+    patient = UserSerializer()
+    time_slot = TimeSlotSerializer(read_only=True)
+    class Meta:
+        model = Appointment
+        fields = ['id', 'time_slot', 'patient', 'Patient_profile', 'appointment_datetime',
+                  'is_confirmed', 'is_cancelled','icu_status','icu_admitted_date','icu_selected', 'appointment_status', 'prescriptions']

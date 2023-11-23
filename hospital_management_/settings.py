@@ -153,6 +153,7 @@ CORS_ALLOW_METHODS = [
     "PUT",
     "DELETE",
     "OPTIONS",
+    "PATCH",
 ]
 
 CACHES = {

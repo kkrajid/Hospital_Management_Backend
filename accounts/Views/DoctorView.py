@@ -453,7 +453,7 @@ def all_icu_patients(request):
     if user.is_blocked:
         return Response({"message": "Your Account is Blocked"}, status=status.HTTP_403_FORBIDDEN)
     doctor_info = User.objects.filter(id=user.id).first()
-    all_appointments_ = Appointment.objects.filter(doctor=doctor_info)
+    all_appointments_ = Appointment.objects.filter(doctor=doctor_info,icu_selected=True)
     appointment_serializer = Get_for_doctor_AppointmentSerializer(all_appointments_, many=True)
     return Response(appointment_serializer.data)
 
@@ -486,6 +486,7 @@ def add_icu_patient(request):
 def create_prescription(request):
     if request.method == 'POST':
         serializer = PrescriptionSerializer(data=request.data)
+        print("fddddddddd",request.data)
         if serializer.is_valid():
             appointment_instance = serializer.validated_data.get('appointment')
             appointment_id = appointment_instance.id if appointment_instance else None
@@ -512,5 +513,18 @@ def get_prescriptions(request, appointment_id):
 @api_view(['GET'])
 def doctor_get_appointment_details(request, appointment_id):
     appointment = get_object_or_404(Appointment, id=appointment_id)
-    serializer = patient_side_get_pateint_detialis_AppointmentSerializer(appointment)
+    serializer = doctor_side_get_pateint_detialis_AppointmentSerializer(appointment)
     return Response(serializer.data)
+
+
+@api_view(['PATCH'])
+def doctor_manage_appointment_status(request, appointment_id):
+    appointment = get_object_or_404(Appointment, id=appointment_id)
+    print(request.data,"*********************************")
+    serializer = AppointmentSerializer(appointment, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+        print(serializer.data,"-----------------------------------")
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else:
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

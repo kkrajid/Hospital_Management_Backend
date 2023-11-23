@@ -116,11 +116,13 @@ APPOINTMENT_STATUS = (
 )
 
 ICU_STATUS = (
-    ('ICU_Admitted', 'ICU Admitted'),
-    ('ICU_Critical', 'ICU Critical'),
-    ('ICU_Recovered', 'ICU Recovered'),
-    ('ICU_Not_Needed', 'ICU Not Needed'),
+    ('ICU Admitted', 'ICU Admitted'),
+    ('ICU Critical', 'ICU Critical'),
+    ('ICU Recovered', 'ICU Recovered'),
+    ('ICU Not Needed', 'ICU Not Needed'),
+    ('ICU Discharged', 'ICU Discharged'), 
 )
+
 
 class Appointment(models.Model):
     time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
@@ -141,7 +143,7 @@ class Appointment(models.Model):
 
 
 class Prescription(models.Model):
-    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
     medications = models.TextField()
     dosage = models.CharField(max_length=50)
     duration = models.CharField(max_length=50)
