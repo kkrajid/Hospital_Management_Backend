@@ -132,7 +132,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
 class GetAppointmentSerializer(serializers.ModelSerializer):
     time_slot = TimeSlotSerializer(read_only=True)
     patient = UserSerializer(read_only=True)
-    #doctor = UserSerializer(read_only=True)
+    doctor = UserSerializer(read_only=True)
     doctor_profile = DoctorProfileSerializer(source='doctor.doctorprofile', read_only=True)
 
     class Meta:
@@ -143,7 +143,7 @@ class GetAppointmentSerializer(serializers.ModelSerializer):
 class Get_for_doctor_AppointmentSerializer(serializers.ModelSerializer):
     time_slot = TimeSlotSerializer(read_only=True)
     patient = UserSerializer(read_only=True)
-    # doctor = UserSerializer(read_only=True)
+    doctor = UserSerializer(read_only=True)
     Patient_profile = PatientProfileSerializer(source='patient.patientprofile', read_only=True)
 
     class Meta:
@@ -173,9 +173,10 @@ class patient_side_get_pateint_detialis_AppointmentSerializer(serializers.ModelS
 class doctor_side_get_pateint_detialis_AppointmentSerializer(serializers.ModelSerializer):
     prescriptions = PrescriptionSerializer(many=True, read_only=True)
     Patient_profile = PatientProfileSerializer(source='patient.patientprofile', read_only=True)
+    doctor_profile = DoctorProfileSerializer(source='doctor.doctorprofile', read_only=True)
     patient = UserSerializer()
     time_slot = TimeSlotSerializer(read_only=True)
     class Meta:
         model = Appointment
-        fields = ['id', 'time_slot', 'patient', 'Patient_profile', 'appointment_datetime',
+        fields = ['id', 'time_slot', 'patient', 'Patient_profile', 'appointment_datetime','doctor_profile',
                   'is_confirmed', 'is_cancelled','icu_status','icu_admitted_date','icu_selected', 'appointment_status', 'prescriptions']

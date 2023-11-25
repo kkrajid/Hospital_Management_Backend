@@ -124,6 +124,15 @@ ICU_STATUS = (
 )
 
 
+PAYMENT_STATUS = (
+    ('Pending', 'Pending'),
+    ('Paid', 'Paid'),
+    ('Failed', 'Failed'),
+    ('Refunded', 'Refunded'),
+)
+
+
+
 class Appointment(models.Model):
     time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
     patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments_as_patient')
@@ -136,6 +145,7 @@ class Appointment(models.Model):
     icu_status = models.CharField(max_length=20, choices=ICU_STATUS, default='ICU Not Needed')
     icu_admitted_date = models.DateTimeField(default=datetime.now, null=True, blank=True)
     icu_discharged_date = models.DateTimeField(null=True, blank=True)
+    payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default='Pending')
 
 
     def __str__(self):
