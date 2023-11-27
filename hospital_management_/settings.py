@@ -91,7 +91,7 @@ TEMPLATES = [
     },
 ]
 
-# WSGI_APPLICATION = 'hospital_management_.wsgi.application'
+WSGI_APPLICATION = 'hospital_management_.wsgi.application'
 ASGI_APPLICATION = 'hospital_management_.asgi.application'
 
 # Database
