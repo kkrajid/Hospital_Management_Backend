@@ -161,18 +161,25 @@ def unblock_users(request):
 
 
 @api_view(['GET'])
-def doctor_appointment_count(request):
+def admin_dashboard_data(request):
     try:
+        # Get a list of doctors and their appointment counts
         doctors = User.objects.filter(role='Doctor')
-        data = []
+        doctor_data = []
+
         for doctor in doctors:
             appointment_count = Appointment.objects.filter(doctor=doctor).count()
-            serialized_data = DoctorAppointmentCountSerializer({
+            serialized_doctor_data = DoctorAppointmentCountSerializer({
                 'doctor': doctor,
                 'appointment_count': appointment_count
             }).data
-            data.append(serialized_data)
-        return Response(data, status=status.HTTP_200_OK)
+            doctor_data.append(serialized_doctor_data)
+
+        # Get admin dashboard data
+        dashboard_data = AdminDashboardSerializer({}).data
+
+        return Response({"doctors": doctor_data, "dashboard_data": dashboard_data}, status=status.HTTP_200_OK)
 
     except Exception as e:
+        print(e) 
         return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

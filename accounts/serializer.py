@@ -196,4 +196,30 @@ class DoctorAppointmentCountSerializer(serializers.Serializer):
 
     class Meta:
         fields = ['doctor_name', 'appointment_count']
-        
+
+
+class AdminDashboardSerializer(serializers.Serializer):
+    total_patient_count = serializers.SerializerMethodField()
+    icu_admitted_count = serializers.SerializerMethodField()
+    appointment_completed_count = serializers.SerializerMethodField()
+    total_paid_count = serializers.SerializerMethodField()
+    total_revenue_count = serializers.SerializerMethodField()
+
+    def get_total_patient_count(self, obj):
+        return User.objects.filter(role='Patient').count()
+
+    def get_icu_admitted_count(self, obj):
+        return Appointment.objects.filter(icu_status=ICU_STATUS[0][0]).count()
+
+    def get_appointment_completed_count(self, obj):
+        return Appointment.objects.filter(appointment_status='Completed').count()
+
+    def get_total_paid_count(self, obj):
+        return Appointment.objects.filter(payment_status=PAYMENT_STATUS[1][0]).count()
+
+
+    def get_total_revenue_count(self, obj):
+        total_revenue = Prescription.objects.filter(appointment__payment_status=PAYMENT_STATUS[1][0]).aggregate(
+            total_revenue=models.Sum(models.F('quantity') * models.F('appointment__doctor__doctorprofile__service_charge'), output_field=models.PositiveIntegerField())
+        )['total_revenue']
+        return total_revenue
