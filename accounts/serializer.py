@@ -180,3 +180,20 @@ class doctor_side_get_pateint_detialis_AppointmentSerializer(serializers.ModelSe
         model = Appointment
         fields = ['id', 'time_slot', 'patient', 'Patient_profile', 'appointment_datetime','doctor_profile',
                   'is_confirmed', 'is_cancelled','icu_status','icu_admitted_date','icu_selected', 'appointment_status', 'prescriptions']
+        
+
+class AdminSidePatientProfileSerializer(serializers.ModelSerializer):
+    patient_profile = PatientProfileSerializer(source='patientprofile', read_only=True)
+
+    class Meta:
+        model = User
+        fields = '__all__'
+
+
+class DoctorAppointmentCountSerializer(serializers.Serializer):
+    doctor_name = serializers.CharField(source='doctor.full_name')
+    appointment_count = serializers.IntegerField()
+
+    class Meta:
+        fields = ['doctor_name', 'appointment_count']
+        

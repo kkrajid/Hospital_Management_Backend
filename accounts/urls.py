@@ -26,6 +26,10 @@ urlpatterns = [
     path('admin/all_doctors',AdminView.get_all_doctor_profiles,name='get_all_doctor_profiles'),
     path('admin/all_patients',AdminView.all_patients,name='all_patients'),
     path('admin/doctor/create', AdminView.create_doctor_profile, name='create-doctor-profile'),
+    path('admin/block-users/', AdminView.block_users, name='block_users'),
+    path('admin/unblock-users/', AdminView.unblock_users, name='unblock_users'),
+    path('admin/doctor_appointment_count/', AdminView.doctor_appointment_count, name='doctor_appointment_count'),
+    
     ############################################################################
 
     #---------------------------ICU side----------------------------------------#

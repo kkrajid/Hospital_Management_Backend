@@ -7,6 +7,7 @@ import jwt
 import datetime
 from datetime import datetime, timedelta
 from ..serializer import *
+from django.shortcuts import get_object_or_404
 # from datetime import datetime, timedelta
 
 
@@ -129,7 +130,7 @@ def all_patients(request):
 
     if user is not None:
         patients = User.objects.filter(role='Patient')
-        user_serializer = UserSerializer(patients, many=True)
+        user_serializer = AdminSidePatientProfileSerializer(patients, many=True)
         
         return Response({"patients": user_serializer.data}, status=status.HTTP_200_OK)
     else:
@@ -137,8 +138,41 @@ def all_patients(request):
 
 
 
+@api_view(['PATCH'])
+def block_users(request):
+    if 'user' not in request.META:
+        return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    admin_user = get_object_or_404(User, id=request.META['user'])
+    if request.method == 'PATCH':
+        user_ids_to_block = request.data.get('id', [])
+        User.objects.filter(id__in=user_ids_to_block).update(is_blocked=True)
+        return Response({"message": "Users blocked successfully"}, status=status.HTTP_200_OK)
 
 
+@api_view(['PATCH'])
+def unblock_users(request):
+    if 'user' not in request.META:
+        return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    admin_user = get_object_or_404(User, id=request.META['user'])
+    if request.method == 'PATCH':
+        user_ids_to_block = request.data.get('id', [])
+        User.objects.filter(id__in=user_ids_to_block).update(is_blocked=False)
+        return Response({"message": "Users blocked successfully"}, status=status.HTTP_200_OK)
 
 
+@api_view(['GET'])
+def doctor_appointment_count(request):
+    try:
+        doctors = User.objects.filter(role='Doctor')
+        data = []
+        for doctor in doctors:
+            appointment_count = Appointment.objects.filter(doctor=doctor).count()
+            serialized_data = DoctorAppointmentCountSerializer({
+                'doctor': doctor,
+                'appointment_count': appointment_count
+            }).data
+            data.append(serialized_data)
+        return Response(data, status=status.HTTP_200_OK)
 
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
