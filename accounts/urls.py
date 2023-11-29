@@ -1,6 +1,6 @@
 
 from django.urls import path,include
-from .Views import AdminView,DoctorView, IcuView, PatientViews,PaymentView
+from .Views import AdminView,DoctorView, IcuView, PatientViews,PaymentView,ChatView
 urlpatterns = [
     #-----------------------Patient side----------------------------------------#
     path('register',PatientViews.register_view,name='register_view' ),
@@ -56,6 +56,7 @@ urlpatterns = [
     # path('create-payment-intent/', PaymentView.CreatePaymentIntentView.as_view(), name='create_payment_intent'),
     path('confirm-payment/', PaymentView.ConfirmPaymentView.as_view(), name='confirm_payment'),
     path('create-payment-intent/', PaymentView.CreatePaymentIntentView.as_view(), name='create_payment_intent'),
+    path('messages/<str:room_slug>/', ChatView.fetch_messages, name='fetch_messages'),
     
     
     
