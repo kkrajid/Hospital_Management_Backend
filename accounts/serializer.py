@@ -50,10 +50,17 @@ class AddressSerializer(serializers.ModelSerializer):
 class DoctorProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(required=False)
     address = AddressSerializer(required=False)
+    is_blocked = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = DoctorProfile
         fields = '__all__'
+
+    def get_is_blocked(self, obj):
+        user_instance = obj.user
+        if user_instance:
+            return user_instance.is_blocked
+        return None 
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')

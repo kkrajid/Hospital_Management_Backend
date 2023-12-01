@@ -429,6 +429,25 @@ def prescriptions_for_appointment(request, appointment_id):
     serializer = PrescriptionCreateSerializer(prescriptions, many=True)
     return Response({'prescriptions': serializer.data})
 
+
+
+
+
+@api_view(['POST'])
+def cancel_appointment(request, appointment_id):
+    try:
+        appointment = Appointment.objects.get(id=appointment_id)
+    except Appointment.DoesNotExist:
+        return Response({'error': 'Appointment not found'}, status=status.HTTP_404_NOT_FOUND)
+
+    if appointment.is_cancelled:
+        return Response({'error': 'Appointment is already cancelled'}, status=status.HTTP_400_BAD_REQUEST)
+    appointment.is_cancelled = True
+    appointment.appointment_status = 'Cancelled'
+    appointment.save()
+    serializer = AppointmentSerializer(appointment)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
 # @api_view(['GET'])
 # def doctor_time_slot_in_patientside(request, pk, date):
 #     if date is None:

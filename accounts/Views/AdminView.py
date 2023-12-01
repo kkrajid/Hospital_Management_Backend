@@ -159,6 +159,14 @@ def unblock_users(request):
         User.objects.filter(id__in=user_ids_to_block).update(is_blocked=False)
         return Response({"message": "Users blocked successfully"}, status=status.HTTP_200_OK)
 
+@api_view(['PATCH'])
+def update_block_status_of_doctor(request):
+    doctor_id = request.data.get('id')
+    is_blocked = request.data.get('is_blocked')
+    doctor = get_object_or_404(User,id=doctor_id)
+    doctor.is_blocked = is_blocked
+    doctor.save()
+    return Response(status=status.HTTP_200_OK)
 
 @api_view(['GET'])
 def admin_dashboard_data(request):

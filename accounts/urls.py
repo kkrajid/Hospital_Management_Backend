@@ -17,6 +17,7 @@ urlpatterns = [
     path('patient/get_all_appointment',PatientViews.get_all_appointment,name='get_all_appointment' ),
     path('patient/appointments/<int:appointment_id>/', PatientViews.appointment_details, name='appointment-details'),
     path('patient/prescriptions/appointment/<int:appointment_id>/', PatientViews.prescriptions_for_appointment, name='prescriptions-for-appointment'),
+    path('patient/cancel_appointment/<int:appointment_id>/', PatientViews.cancel_appointment, name='cancel_appointment'),
    
     ############################################################################
 
@@ -29,6 +30,7 @@ urlpatterns = [
     path('admin/block-users/', AdminView.block_users, name='block_users'),
     path('admin/unblock-users/', AdminView.unblock_users, name='unblock_users'),
     path('admin/admin_dashboard_data/', AdminView.admin_dashboard_data, name='admin_dashboard_data'),
+    path('admin/updateBlockStatusOfDoctor/', AdminView.update_block_status_of_doctor, name='update_block_status_of_doctor'),
     ############################################################################
 
     #---------------------------ICU side----------------------------------------#

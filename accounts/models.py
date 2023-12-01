@@ -3,10 +3,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin,AbstractUser
 
 from datetime import datetime
-
-from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
+
+
 
 ROLE_CHOICES = (
     ('Doctor', 'Doctor'),
@@ -107,6 +108,14 @@ def post_save_timeslot(sender, instance, created, **kwargs):
         action = "updated"
     print(f"TimeSlot {instance.id} {action}")
 
+class Wallet(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
+@receiver(post_save, sender=User)
+def create_user_wallet(sender, instance, created, **kwargs):
+    if created:
+        Wallet.objects.create(user=instance)
 
 APPOINTMENT_STATUS = (
     ('Pending', 'Pending'),
@@ -132,7 +141,6 @@ PAYMENT_STATUS = (
 )
 
 
-
 class Appointment(models.Model):
     time_slot = models.ForeignKey(TimeSlot, on_delete=models.CASCADE)
     patient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='appointments_as_patient')
@@ -146,10 +154,33 @@ class Appointment(models.Model):
     icu_admitted_date = models.DateTimeField(default=datetime.now, null=True, blank=True)
     icu_discharged_date = models.DateTimeField(null=True, blank=True)
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default='Pending')
+    amount_paid = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    refunded_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+ 
 
 
     def __str__(self):
         return f"Appointment with {self.doctor} on {self.appointment_datetime}"
+
+@receiver(pre_save, sender=Appointment)
+def validate_refund_amount(sender, instance, **kwargs):
+    if instance.is_cancelled and instance.amount_paid > 0 and instance.refunded_amount > instance.amount_paid:
+        raise ValidationError("Refunded amount cannot exceed the amount paid.")
+
+@receiver(post_save, sender=Appointment)
+def handle_refund(sender, instance, created, **kwargs):
+    if created and instance.is_cancelled and instance.amount_paid > 0:
+        # Calculate the refund amount (assuming a full refund for simplicity)
+        refund_amount = instance.amount_paid
+
+        # Update the patient's wallet balance
+        patient_wallet, created = Wallet.objects.get_or_create(user=instance.patient)
+        patient_wallet.balance += refund_amount
+        patient_wallet.save()
+
+        # Update the refunded_amount field in the Appointment model
+        instance.refunded_amount = refund_amount
+        instance.save()
 
 
 class Prescription(models.Model):
