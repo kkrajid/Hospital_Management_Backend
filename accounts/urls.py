@@ -19,7 +19,7 @@ urlpatterns = [
     path('patient/prescriptions/appointment/<int:appointment_id>/', PatientViews.prescriptions_for_appointment, name='prescriptions-for-appointment'),
     path('patient/cancel_appointment/<int:appointment_id>/', PatientViews.cancel_appointment, name='cancel_appointment'),
    
-    ############################################################################
+ 
 
     #-------------------------Admin side----------------------------------------#
     path('admin/login',AdminView.admin_login_view,name='admin_login'),
@@ -31,11 +31,11 @@ urlpatterns = [
     path('admin/unblock-users/', AdminView.unblock_users, name='unblock_users'),
     path('admin/admin_dashboard_data/', AdminView.admin_dashboard_data, name='admin_dashboard_data'),
     path('admin/updateBlockStatusOfDoctor/', AdminView.update_block_status_of_doctor, name='update_block_status_of_doctor'),
-    ############################################################################
+
 
     #---------------------------ICU side----------------------------------------#
     path('icu/login',IcuView.icu_login_view,name='icu_login'),
-    ############################################################################
+
 
     #---------------------------Doctor side--------------------------------------#
     path('doctor/login',DoctorView.doctor_login_view,name='doctor_login'),

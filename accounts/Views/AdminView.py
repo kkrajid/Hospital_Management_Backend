@@ -29,7 +29,7 @@ def admin_login_view(request):
         
         if not user.check_password(password):
             return Response({"message": "Incorrect Password"}, status=status.HTTP_401_UNAUTHORIZED)
-
+        
         payload = {
             'id': user.id,
             'exp': datetime.utcnow() + timedelta(minutes=60),
@@ -39,7 +39,7 @@ def admin_login_view(request):
 
         secret_key = 'secret'
         algorithm = 'HS256'
-
+        
         token = jwt.encode(payload, secret_key, algorithm=algorithm)
         response = Response({'token': token}, status=status.HTTP_200_OK)
         return response

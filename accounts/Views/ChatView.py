@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from chat.models import Room, Message
-# Create your views here.
+
 def fetch_messages(request, room_slug):
     room = get_object_or_404(Room, slug=room_slug)
     messages = Message.objects.filter(room=room).order_by('timestamp')

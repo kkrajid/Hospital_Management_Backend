@@ -125,11 +125,11 @@ APPOINTMENT_STATUS = (
 )
 
 ICU_STATUS = (
-    ('ICU Admitted', 'ICU Admitted'),
-    ('ICU Critical', 'ICU Critical'),
-    ('ICU Recovered', 'ICU Recovered'),
-    ('ICU Not Needed', 'ICU Not Needed'),
-    ('ICU Discharged', 'ICU Discharged'), 
+    ('Admitted', 'Admitted'),
+    ('Critical', 'Critical'),
+    ('Recovered', 'Recovered'),
+    ('Not Needed', 'Not Needed'),
+    ('Discharged', 'Discharged'), 
 )
 
 
@@ -150,7 +150,7 @@ class Appointment(models.Model):
     is_cancelled = models.BooleanField(default=False)
     appointment_status = models.CharField(max_length=20, choices=APPOINTMENT_STATUS, default='Pending')
     icu_selected = models.BooleanField(default=False)
-    icu_status = models.CharField(max_length=20, choices=ICU_STATUS, default='ICU Not Needed')
+    icu_status = models.CharField(max_length=20, choices=ICU_STATUS, default='Not Needed')
     icu_admitted_date = models.DateTimeField(default=datetime.now, null=True, blank=True)
     icu_discharged_date = models.DateTimeField(null=True, blank=True)
     payment_status = models.CharField(max_length=20, choices=PAYMENT_STATUS, default='Pending')
